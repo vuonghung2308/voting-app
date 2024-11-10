@@ -16,11 +16,12 @@ namespace Worker
         {
             try
             {
-                var dbUsername = Environment.GetEnvironmentVariable("DB_USERNAME") ?? "postgres";
-                var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "postgres";
-                var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "postgres";
+                var dbHost = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "db";
+                var dbUsername = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "postgres";
+                var dbPassword = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "postgres";
+                var dbName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "postgres";
                 var redisPassword = Environment.GetEnvironmentVariable("REDIS_PASSWORD") ?? "passwd";
-                var pgsql = OpenDbConnection($"Server=db;Username={dbUsername};Password={dbPassword};Database={dbName};");
+                var pgsql = OpenDbConnection($"Server={dbHost};Username={dbUsername};Password={dbPassword};Database={dbName};");
                 var redisConn = OpenRedisConnection("redis", redisPassword);
                 var redis = redisConn.GetDatabase();
 

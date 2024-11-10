@@ -7,9 +7,10 @@ var express = require('express'),
     io = require('socket.io')(server);
 
 var port = process.env.PORT || 4000;
-var dbuser = process.env.DBUSER || 'postgres';
-var dbpassword = process.env.DBPASSWORD || 'postgres';
-var dbname = process.env.DBNAME || 'postgres';
+var dbuser = process.env.DATABASE_USER || 'postgres';
+var dbpassword = process.env.DATABASE_PASSWORD || 'postgres';
+var dbname = process.env.DATABASE_NAME || 'postgres';
+var dbhost = process.env.DATABASE_HOST || 'db';
 
 io.on('connection', function (socket) {
 
@@ -21,7 +22,7 @@ io.on('connection', function (socket) {
 });
 
 var pool = new Pool({
-  connectionString: `postgres://${dbuser}:${dbpassword}@db/${dbname}`
+  connectionString: `postgres://${dbuser}:${dbpassword}@${dbhost}/${dbname}`
 });
 
 async.retry(

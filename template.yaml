@@ -7,28 +7,13 @@ metadata:
     iconClass: "icon-voting-app"
     tags: "database,nosql,dotnet,nodejs"
 objects:
-- apiVersion: v1
-  kind: Pod
-  metadata:
-    name: redis-master
-  spec:
-    containers:
-    - env:
-      - name: REDIS_PASSWORD
-        value: ${REDIS_PASSWORD}
-      image: dockerfile/redis
-      name: master
-      ports:
-      - containerPort: 6379
-        protocol: TCP
-
 - kind: Secret
   apiVersion: v1
   metadata:
     name: postgres
     labels:
       template: voting-app
-  data:
+  stringData:
     database-name: ${DATABASE_NAME}
     database-password: ${DATABASE_PASSWORD}
     database-user: ${DATABASE_USER}
@@ -40,7 +25,7 @@ objects:
     name: redis
     labels:
       template: voting-app
-  data:
+  stringData:
     database-password: ${REDIS_PASSWORD}
   type: Opaque
 
@@ -53,7 +38,8 @@ objects:
   spec:
     replicas: 1
     selector:
-      name: postgres
+      matchLabels:
+        name: postgres
     template:
       metadata:
         labels:
@@ -107,22 +93,21 @@ objects:
               - containerPort: 5432
                 protocol: TCP
             volumeMounts:
-              - name: db-data
+              - name: postgres-data
                 mountPath: /var/lib/pgsql/data
             image: 'image-registry.openshift-image-registry.svc:5000/openshift/postgresql@sha256:5db804ee8fc286e8f82163a232ed36303a81d62daf450e1b09b3c18a5bccde82'
-        restartPolicy: Always
 
-- kind: DeploymentConfig
-  apiVersion: apps.openshift.io/v1
+- kind: Deployment
+  apiVersion: apps/v1
   metadata:
     name: redis
     labels:
       template: voting-app
   spec:
     replicas: 1
-    test: false
     selector:
-      name: redis
+      matchLabels:
+        name: redis
     template:
       metadata:
         labels:
@@ -317,7 +302,7 @@ objects:
       app: resultapp
       template: voting-app
   spec:
-    replicas: 0
+    replicas: 1
     selector:
       matchLabels:
         app: resultapp
@@ -332,6 +317,24 @@ objects:
               - name: user-port
                 containerPort: 8080
                 protocol: TCP
+            env:
+              - name: DATABASE_HOST
+                value: db
+              - name: DATABASE_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres
+                    key: database-user
+              - name: DATABASE_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres
+                    key: database-password
+              - name: DATABASE_NAME
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres
+                    key: database-name
             imagePullPolicy: Always
             image: 'image-registry.openshift-image-registry.svc:5000/vuonghung2308-dev/resultapp:latest'
         restartPolicy: Always
@@ -360,6 +363,14 @@ objects:
                 containerPort: 8080
                 protocol: TCP
             imagePullPolicy: Always
+            env:
+              - name: REDIS_HOST
+                value: redis
+              - name: REDIS_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: redis
+                    key: database-password
             image: 'image-registry.openshift-image-registry.svc:5000/vuonghung2308-dev/voteapp:latest'
         restartPolicy: Always
 
@@ -386,6 +397,24 @@ objects:
               - name: user-port
                 containerPort: 8080
                 protocol: TCP
+            env:
+              - name: DATABASE_HOST
+                value: db
+              - name: DATABASE_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres
+                    key: database-user
+              - name: DATABASE_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres
+                    key: database-password
+              - name: DATABASE_NAME
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres
+                    key: database-name
             imagePullPolicy: Always
             image: 'image-registry.openshift-image-registry.svc:5000/vuonghung2308-dev/workerapp:latest'
         restartPolicy: Always
@@ -464,7 +493,6 @@ parameters:
 - name: DATABASE_PASSWORD
   description: "Database password"
   required: true
-  value: "password"
   generate: expression
   from: '[A-Z0-9]{8}'
 - name: REDIS_PASSWORD
