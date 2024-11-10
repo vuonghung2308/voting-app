@@ -119,11 +119,11 @@ namespace Worker
                 try
                 {
                     Console.Error.WriteLine("Connecting to redis");
-                    return ConnectionMultiplexer.Connect($"{ipAddress},password=${password}");
+                    return ConnectionMultiplexer.Connect($"{ipAddress}:6379,password=${password}");
                 }
-                catch (RedisConnectionException)
+                catch (RedisConnectionException ex)
                 {
-                    Console.Error.WriteLine("Waiting for redis");
+                    Console.Error.WriteLine($"Waiting for redis: {ex.Message}");
                     Thread.Sleep(1000);
                 }
             }

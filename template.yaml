@@ -473,6 +473,8 @@ objects:
       name: resultapp
     port:
       targetPort: user-port
+    tls:
+      termination: edge
 
 - kind: Route
   apiVersion: route.openshift.io/v1
@@ -487,6 +489,8 @@ objects:
       name: voteapp
     port:
       targetPort: user-port
+    tls:
+      termination: edge
 
 parameters:
 - name: DATABASE_NAME
