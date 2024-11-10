@@ -17,7 +17,7 @@ namespace Worker
             try
             {
                 var dbHost = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "db";
-                var dbUsername = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "postgres";
+                var dbUsername = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "postgres";
                 var dbPassword = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "postgres";
                 var dbName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "postgres";
                 var redisPassword = Environment.GetEnvironmentVariable("REDIS_PASSWORD") ?? "passwd";
