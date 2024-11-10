@@ -415,6 +415,13 @@ objects:
                   secretKeyRef:
                     name: postgres
                     key: database-name
+              - name: REDIS_HOST
+                value: redis
+              - name: REDIS_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: redis
+                    key: database-password
             imagePullPolicy: Always
             image: 'image-registry.openshift-image-registry.svc:5000/vuonghung2308-dev/workerapp:latest'
         restartPolicy: Always
